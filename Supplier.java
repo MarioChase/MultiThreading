@@ -11,13 +11,17 @@ public class Supplier extends Person {
 		m_matches = new Semaphore(0, true);
 	}
 
+	//created a singleton of supplier seemed to make sense to only call a single supplier
 	public static Supplier getInstance() {
 		if (m_instance == null)
 			m_instance = new Supplier(new Semaphore(0, true), new Semaphore(0, true), new Semaphore(0, true));
 		return m_instance;
 	}
 
-	public void placeProduct(String product) {
+	//releases a single permit for the argument passed
+	synchronized public void placeProduct(String product) throws InterruptedException {
+		System.out.println(product + "placed");
+		Thread.sleep(3000);
 		switch (product) {
 		case "tobacco":
 			m_tobacco.release();
@@ -31,12 +35,15 @@ public class Supplier extends Person {
 		}
 
 	}
-
+	
+	//clears all outstanding permits
 	synchronized public void clearTable() {
 		System.out.println("table cleared!");
 		m_tobacco.drainPermits();
+		m_matches.drainPermits();
+		m_paper.drainPermits();
 	}
-
+	
 	public Semaphore getTobacco() {
 
 		return m_tobacco;
@@ -57,10 +64,14 @@ public class Supplier extends Person {
 		{
 			try {
 				while (true) {
+					
+					/*System.out.println(m_tobacco.availablePermits());
+					System.out.println(m_paper.availablePermits());
+					System.out.println(m_matches.availablePermits());*/
 					int wait = rand.nextInt(500) + 500;
-
 					int product = rand.nextInt(3) + 1;
 					Thread.sleep(wait);
+					//Uses case statements and an RNG to determine what to place on the table
 					switch (product) {
 					case 1:
 						placeProduct("tobacco");

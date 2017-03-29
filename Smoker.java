@@ -14,17 +14,19 @@ public class Smoker extends Person {
 	}
 	
 	//easy way to release the current permits it holds
-	public void finished(Semaphore a, Semaphore b) {
+	synchronized public void finished(Semaphore a, Semaphore b) {
 		a.release();
 		b.release();
 	}
 
 	@Override
 	public Boolean call() throws Exception {
+		Random rand = new Random();
 		System.out.println("Smoker running");
 		{
 			try {
 				while (true) {
+					int smoking = 500 ;//rand.nextInt(500) + 1000;
 					//case statement to determine which product the smoker has ulimited amounts of
 					switch (owned.getType()) {
 					case "tobacco":
@@ -34,15 +36,14 @@ public class Smoker extends Person {
 						if (m_matches.tryAcquire()) {
 							m_matches.acquire();
 							System.out.println(this + ": picked up matches");
-							Thread.sleep(1000);
+							Thread.sleep(smoking);
 							finished(m_paper, m_matches);
 							System.out.println(owned.getType() + ": is smoking");
 							Supplier.getInstance().clearTable();
-							Thread.sleep(5000);
-
 							break;
 						} else {
 							//if smoker could not obtain the second item it drops the first one
+							Thread.sleep(1000);
 							m_paper.release();
 							System.out.println(this + ": dropped paper");
 							break;
@@ -55,15 +56,14 @@ public class Smoker extends Person {
 						if (m_tobacco.tryAcquire()) {
 							m_tobacco.acquire();
 							System.out.println(this + ": picked up tobacco");
-							Thread.sleep(1000);
+							Thread.sleep(smoking);
 							finished(m_matches, m_tobacco);
 							System.out.println(owned.getType() + ": is smoking");
-
 							Supplier.getInstance().clearTable();
-							Thread.sleep(5000);
 							break;
 						} else {
 							m_matches.release();
+							Thread.sleep(1000);
 							System.out.println(this + ": dropped matches");
 							break;
 						}
@@ -75,14 +75,14 @@ public class Smoker extends Person {
 						if (m_tobacco.tryAcquire()) {
 							m_tobacco.acquire();
 							System.out.println(this + ": picked up tobacco");
-							Thread.sleep(1000);
+							Thread.sleep(smoking);
 							finished(m_paper, m_tobacco);
 							System.out.println(owned.getType() + ": is smoking");
 							Supplier.getInstance().clearTable();
-							Thread.sleep(5000);
 							break;
 						} else {
 							m_paper.release();
+							Thread.sleep(1000);
 							System.out.println(this + ": dropped paper");
 							break;
 						}

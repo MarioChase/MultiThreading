@@ -38,6 +38,7 @@ public class Supplier extends Person {
 	
 	//clears all outstanding permits
 	synchronized public void clearTable() {
+		
 		System.out.println("table cleared!");
 		m_tobacco.drainPermits();
 		m_matches.drainPermits();
@@ -64,10 +65,6 @@ public class Supplier extends Person {
 		{
 			try {
 				while (true) {
-					
-					/*System.out.println(m_tobacco.availablePermits());
-					System.out.println(m_paper.availablePermits());
-					System.out.println(m_matches.availablePermits());*/
 					int wait = rand.nextInt(500) + 500;
 					int product = rand.nextInt(3) + 1;
 					Thread.sleep(wait);
@@ -76,6 +73,7 @@ public class Supplier extends Person {
 					case 1:
 						placeProduct("tobacco");
 						placeProduct("paper");
+						
 						break;
 					case 2:
 						placeProduct("paper");
